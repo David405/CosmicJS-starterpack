@@ -61,7 +61,75 @@ import { registerModel } from '../models/cosmic.model';@Injectable()export class
         var jsondata = JSON.parse(localStorage.getItem('user'));
         const userName = jsondata.jsondata.objects[0].metadata.username;
         return this._http.post(this.URL+this.bucket_slug+"/add-object/", {
-            
+            title: blogModel.title, content: blogModel.content, slug: blogModel.title, type_slug: 'blogs', write_key: config.write_key, 
+            metafields: [
+                {
+                    key: "author",
+                    type: "text",
+                    value: userName
+                },
+                {
+                    key: "description",
+                    type: "text",
+                    value: blogModel.description
+                },
+                {
+                    key: "blogImage",
+                    type: "text",
+                    value: blogModel.blogImage
+                },
+            ]
+        })
+    .map(res => {
+        return res;
+    })
+    
+    /* show blogposts */
+    {
+        return this._http.get(this.URL+this.bucket_slug+"/object-type/blogs", { params: {  read_key: config.read_key,
+        }})
+        .map( res => {
+            return res;
         })
     }
-}
+    /* show blogs of logged user*/
+    showBlogs() {
+        var jsondata = JSON.parse(localStorage.getItem('user'));
+        const userName = jsondata.jsondata.objects[0].metadata.username;
+        return this._http.get(this.URL+this.bucket_slug+"object-type/blogs/search", {
+            params: {
+                metafield_key: 'author',
+                metafield_value: userName,
+                read_key: config.read_key,
+            }
+        })
+    }
+    /*Show single Post on dashboard */
+    showSinglePostDashboard() {
+        return this._http.get(this.URL+this.bucket_slug+"/object-type/blogs", {
+            params: {
+                read_key: config.read_key,
+            }
+        })
+        .map(res => {
+            return res;
+        })
+    }
+    /* show single post on homepage */
+    singlePostHome() {
+        return this._http.get(this.URL+this.bucket_slug+"/object-type/blogs/", {
+            params: {
+                read_key: config.read_key
+            }
+        })
+    }
+    /* login user in */
+    login(registerModel: registerModel) {
+        return this._http.get(this.URL+this.bucket_slug+"object-type/registerusers/search", { params: {
+            metafield_key: 'username',
+            metafield_value: registerModel.userName,
+            limit: 1,
+            read_key: config.read_key
+        }})
+    }
+}}
